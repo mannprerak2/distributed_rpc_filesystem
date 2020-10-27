@@ -3,22 +3,9 @@ import os
 import sys
 import json
 import socketserver
+
+from models import FileSystem
 from crypto import encrypt
-
-
-class FileSystem:
-    def __init__(self, id):
-        self.id = str(id)
-        self.key = os.urandom(16)
-
-    def get_key(self):
-        return self.key
-
-    def get_id(self):
-        return self.id
-
-    def serialize(self):
-        return json.dumps({ 'id': self.id, 'key': self.key.hex() })
 
 # Stores id -> filesystem_node
 filesystems = {}
@@ -37,7 +24,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             response = fs.serialize()
 
             print("Registering file system node with id:", fs.get_id())
-            response = encrypt(response, is_fs=True)
+            response = encrypt(response)
             
             self.request.sendall(response)
 

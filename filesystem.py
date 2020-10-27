@@ -22,7 +22,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
     # Receive data from the server and shut down
     received = sock.recv(1024)
-    received = decrypt(received, is_fs=True)
+    received = decrypt(received)
     received = json.loads(received)
 
     id = received['id']
