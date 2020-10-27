@@ -7,6 +7,7 @@ from Cryptodome.Random import get_random_bytes
 # Saved keys
 from keys import FS_KEY, CLI_KEY
 
+# To-Do: Rename is_fs argument
 def encrypt(raw, is_fs):
     if is_fs:
         key = FS_KEY
@@ -35,6 +36,7 @@ def decrypt(enc, is_fs):
     cipher = AES.new(key, AES.MODE_CFB, iv)
     return unpad(base64.b64decode(cipher.decrypt(enc[AES.block_size:])).decode('utf8'))
 
+# For testing purpose
 if __name__ == "__main__":
     payload = json.dumps({ 'id': "123", 'key': "123438473" })
     print(payload)

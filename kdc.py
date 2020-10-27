@@ -1,8 +1,10 @@
 # Key Distribution Center
 import os
 import sys
-import socketserver
 import json
+import socketserver
+from crypto import encrypt
+
 
 class FileSystem:
     def __init__(self, id):
@@ -35,7 +37,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             response = fs.serialize()
 
             print("Registering file system node with id:", fs.get_id())
-            response = bytes(response, 'utf-8')
+            response = encrypt(response, is_fs=True)
             
             self.request.sendall(response)
 

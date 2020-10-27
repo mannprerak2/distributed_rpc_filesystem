@@ -3,6 +3,7 @@
 import socket
 import json
 import sys
+from crypto import decrypt
 
 HOST, PORT = "localhost", int(sys.argv[1])
 
@@ -20,7 +21,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.sendall(bytes(data, "utf-8"))
 
     # Receive data from the server and shut down
-    received = str(sock.recv(1024), "utf-8")
+    received = sock.recv(1024)
+    received = decrypt(received, is_fs=True)
     received = json.loads(received)
 
     id = received['id']
