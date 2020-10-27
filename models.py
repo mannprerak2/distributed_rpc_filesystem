@@ -15,15 +15,24 @@ class FileSystem:
     def serialize(self):
         return json.dumps({ 'id': self.id, 'key': self.key.hex() })
 
+# To-Do: Handle all edge cases when body is None
 class Route:
     def __init__(self, sel, body):
         self.sel = sel
         self.body = body
 
-    def __init__(self, serialized):
+    @classmethod
+    def fromrequest(cls, serialized):
         data = json.loads(serialized)
-        self.sel = data.sel
-        self.body = data.body
+        
+        if ('body' not in data):
+            return cls(data['sel'], None)
+        return cls(data['sel'], data['body'])
 
     def serialize(self):
+        if (self.body == None):
+            return json.dumps({ 'sel': self.sel })
         return json.dumps({ 'sel': self.sel,  body: self.body})
+
+    def get_sel(self):
+        return self.sel

@@ -3,7 +3,8 @@
 import socket
 import json
 import sys
-from crypto import decrypt
+from crypto import encrypt, decrypt
+from models import Route
 
 HOST, PORT = "localhost", int(sys.argv[1])
 
@@ -16,9 +17,11 @@ key = None
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.connect((HOST, PORT))
 
-    data = "init"
+    data = Route("init", None)
+    data = encrypt(data.serialize())
+
     # Connect to server and send data
-    sock.sendall(bytes(data, "utf-8"))
+    sock.sendall(data)
 
     # Receive data from the server and shut down
     received = sock.recv(1024)

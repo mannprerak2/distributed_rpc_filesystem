@@ -4,8 +4,8 @@ import sys
 import json
 import socketserver
 
-from models import FileSystem
-from crypto import encrypt
+from models import FileSystem, Route
+from crypto import encrypt, decrypt
 
 # Stores id -> filesystem_node
 filesystems = {}
@@ -13,9 +13,10 @@ filesystems = {}
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        route = str(self.data, 'utf-8')
+        route = decrypt(self.data)
+        route = Route.fromrequest(route)
 
-        if (route == "init"):
+        if (route.get_sel() == "init"):
             # A file system node is initialising the connection
             fs = FileSystem(len(filesystems) + 1)
 
