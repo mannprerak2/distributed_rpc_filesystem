@@ -15,6 +15,20 @@ class FileSystem:
     def serialize(self):
         return json.dumps({ 'id': self.id, 'key': self.key.hex() })
 
+class Client:
+    def __init__(self, id):
+        self.id = str(id)
+        self.key = os.urandom(16)
+
+    def get_key(self):
+        return self.key
+
+    def get_id(self):
+        return self.id
+
+    def serialize(self):
+        return json.dumps({ 'id': self.id, 'key': self.key.hex() })
+
 # To-Do: Handle all edge cases when body is None
 class Route:
     def __init__(self, sel, body):
@@ -32,7 +46,7 @@ class Route:
     def serialize(self):
         if (self.body == None):
             return json.dumps({ 'sel': self.sel })
-        return json.dumps({ 'sel': self.sel,  body: self.body})
+        return json.dumps({ 'sel': self.sel, 'body': self.body })
 
     def get_sel(self):
         return self.sel
