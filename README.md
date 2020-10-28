@@ -32,4 +32,25 @@ A distributed RPC file system utilising symmetric key cryptography. Made with Py
     pip install -r requirements.txt
 ```
 
+### Usage -
+
+Running KDC
+
+```bash
+    python kdc.py 3001
+```
+
+Starting a Filesystem node
+
+```bash
+    python filesystem.py --kdc 3001 --path ./data/fs1/ --port 8000
+    python filesystem.py --kdc 3001 --path ./data/fs2/ --port 8001
+```
+
+Starting a Client node
+
+```bash
+    python client.py 3001
+```
+
 ...
