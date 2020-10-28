@@ -18,11 +18,26 @@ if (len(sys.argv) > 1):
     KDC_PORT = int(sys.argv[1])
 
 
+def generate_listing():
+    result = []
+    for id in filesystems:
+        files = filesystems[id].get_files()
+        for name in files:
+            result.append(
+                {"name": name, "id": id, "port": str(
+                    filesystems[id].get_port())}
+            )
+
+    return {"files": result}
+
+
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
         route = decrypt(self.data)
         route = Route.fromrequest(route)
+
+        print(route.get_sel())
 
         if (route.get_sel() == "init"):
             # A file system node is initialising the connection
@@ -52,6 +67,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             else:
                 # Login failed
                 self.request.sendall(bytes('\0', 'utf-8'))
+
+        elif (route.get_sel() == "ls"):
+            response = generate_listing()
+            response = encrypt(json.dumps(response))
+
+            self.request.sendall(response)
 
 
 if __name__ == "__main__":

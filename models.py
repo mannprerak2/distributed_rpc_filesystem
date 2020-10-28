@@ -22,7 +22,7 @@ class FileSystem:
         return self.files
 
     def serialize(self):
-        return json.dumps({'id': self.id, 'key': self.key.hex()})
+        return json.dumps({"id": self.id, "key": self.key.hex()})
 
 
 class Client:
