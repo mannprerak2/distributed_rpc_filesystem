@@ -2,11 +2,6 @@
 
 A distributed RPC file system utilising symmetric key cryptography. Made with Python3.
 
-### TODO -
-
-- [ ] Setup repository.
-- [ ] Create basic project skeleton
-
 ### Notes -
 
 - Generate 16 byte key for every client node and file system node.
@@ -15,7 +10,7 @@ A distributed RPC file system utilising symmetric key cryptography. Made with Py
 
 - Use AES encryption.
 
-- Filesystem nodes would also be TCP servers  
+- Filesystem nodes would also be TCP servers
 
 ### Setup -
 
@@ -34,7 +29,7 @@ A distributed RPC file system utilising symmetric key cryptography. Made with Py
 3. Install dependencies
 
 ```bash
-    pip install requirements.txt
+    pip install -r requirements.txt
 ```
 
 ...

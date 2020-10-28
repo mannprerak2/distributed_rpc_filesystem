@@ -13,6 +13,7 @@ filesystems = {}
 # Stores id -> client_node
 clients = {}
 
+
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
@@ -29,7 +30,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             print("Registering file system node with id:", fs.get_id())
             response = encrypt(response)
-            
+
             self.request.sendall(response)
 
         elif (route.get_sel() == "login"):
@@ -46,6 +47,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             else:
                 # Login failed
                 self.request.sendall(bytes('\0', 'utf-8'))
+
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", int(sys.argv[1])

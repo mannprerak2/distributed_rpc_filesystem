@@ -20,7 +20,7 @@ password = PASSWORD
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.connect((HOST, PORT))
 
-    data = Route("login", { 'username': username, 'password': password })
+    data = Route("login", {'username': username, 'password': password})
     data = encrypt(data.serialize())
 
     # Connect to server and send data
@@ -39,4 +39,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         id = received['id']
         key = bytes.fromhex(received['key'])
         print("Successfully received key with id:", id)
-
