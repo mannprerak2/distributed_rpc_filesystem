@@ -39,8 +39,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         print("ERR: Unable to connect with KDC.")
         exit()
 
+    try:
+        files = os.listdir(PATH)
+    except:
+        print("Not a valid path provided")
+        exit()
+
     print("Registering FS node with KDC ...")
-    data = Route("init", None)
+    data = Route("init", {'port': PORT, 'files': files})
     data = encrypt(data.serialize())
 
     # Connect to server and send data

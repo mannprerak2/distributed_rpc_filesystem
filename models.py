@@ -3,15 +3,23 @@ import json
 
 
 class FileSystem:
-    def __init__(self, id):
+    def __init__(self, id, port, files):
         self.id = str(id)
         self.key = os.urandom(16)
+        self.port = port
+        self.files = files
 
     def get_key(self):
         return self.key
 
     def get_id(self):
         return self.id
+
+    def get_port(self):
+        return self.port
+
+    def get_files(self):
+        return self.files
 
     def serialize(self):
         return json.dumps({'id': self.id, 'key': self.key.hex()})
@@ -54,3 +62,6 @@ class Route:
 
     def get_sel(self):
         return self.sel
+
+    def get_body(self):
+        return self.body

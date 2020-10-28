@@ -26,7 +26,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
         if (route.get_sel() == "init"):
             # A file system node is initialising the connection
-            fs = FileSystem(len(filesystems) + 1)
+            fs = FileSystem(len(filesystems) + 1,
+                            port=route.body['port'], files=route.body['files'])
 
             # Save the generated id and key pair (for faster lookups)
             filesystems[fs.get_id()] = fs
