@@ -15,6 +15,9 @@ key = None
 username = CLIENT_USERNAME
 password = PASSWORD
 
+if (len(sys.argv) > 1):
+    KDC_PORT = int(sys.argv[1])
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     print("Connecting with KDC on PORT:", KDC_PORT, "...")
     try:

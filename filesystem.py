@@ -11,6 +11,9 @@ from config import HOST, KDC_PORT
 id = None
 key = None
 
+if (len(sys.argv) > 1):
+    KDC_PORT = int(sys.argv[1])
+
 # Initialisation - get unique ID and key from KDC
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:

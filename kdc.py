@@ -14,6 +14,9 @@ filesystems = {}
 # Stores id -> client_node
 clients = {}
 
+if (len(sys.argv) > 1):
+    KDC_PORT = int(sys.argv[1])
+
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
