@@ -74,6 +74,21 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             self.request.sendall(response)
 
+        elif route.get_sel() == "comm":
+            # Initial communication for Needham Schroeder
+            fs_id = route.body['id']
+            fs_key = filesystems[fs_id].get_key()
+
+            # Generate session key
+            session_key = os.urandom(16).hex()
+            encrypted_session_key = encrypt(session_key, fs_key)
+
+            response = encrypt(json.dumps(
+                {'key': session_key, 'encrypted': encrypted_session_key.hex()}
+            ))
+
+            self.request.sendall(response)
+
 
 if __name__ == "__main__":
     with socketserver.TCPServer((HOST, KDC_PORT), MyTCPHandler) as server:

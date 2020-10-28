@@ -29,8 +29,8 @@ def get_fs_port(filename):
     # Get port number of FS node which contains filename
     for each in files:
         if each['name'] == filename:
-            return int(each['port'])
-    return None
+            return int(each['port']), each['id']
+    return None, None
 
 
 def request(port, path, body):
@@ -54,6 +54,19 @@ def request(port, path, body):
     else:
         print("Could not send the request")
         exit()
+
+
+def get_session_key(port, id):
+    # 1. Send request to KDC with FS id
+    # 2. Get session key and its encrypted version (using FS's key)
+
+    response = request(KDC_PORT, "comm", {'id': id})
+    session_key = response['key']
+
+    # Same key but encrypted using FS node's key
+    encrypted_session_key = response['encrypted']
+
+    print(session_key, encrypted_session_key)
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -103,14 +116,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 words = command.split(' ')
                 if words[0] == "cat":
                     filename = words[1]
-                    port = get_fs_port(filename)
+                    port, id = get_fs_port(filename)
 
                     if (port == None):
                         print("No such file")
                     else:
-                        print("Found port:", port)
+                        print("Found port:", port, id)
 
                         if port in session_keys:
                             print("Directly communicate with fs node")
                         else:
                             print("Get session key for this fs node")
+                            get_session_key(port, id)
