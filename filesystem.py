@@ -5,8 +5,7 @@ import json
 import sys
 from crypto import encrypt, decrypt
 from models import Route
-
-HOST, PORT = "localhost", int(sys.argv[1])
+from config import HOST, KDC_PORT
 
 # Global Information of FS node
 id = None
@@ -15,8 +14,14 @@ key = None
 # Initialisation - get unique ID and key from KDC
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    sock.connect((HOST, PORT))
+    print("Connecting with KDC on PORT:", KDC_PORT, "...")
+    try:
+        sock.connect((HOST, KDC_PORT))
+    except:
+        print("ERR: Unable to connect with KDC.")
+        exit()
 
+    print("Registering FS node with KDC ...")
     data = Route("init", None)
     data = encrypt(data.serialize())
 

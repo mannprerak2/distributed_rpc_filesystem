@@ -5,10 +5,11 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Random import get_random_bytes
 
 # Shared symmetric key
-from keys import KEY
+from config import KEY
 
 
-def encrypt(raw):
+def encrypt(raw, KEY=KEY):
+    """AES encryption. Uses default shared key if none is provided."""
     BS = AES.block_size
     def pad(s): return s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
@@ -19,7 +20,8 @@ def encrypt(raw):
     return base64.b64encode(iv + cipher.encrypt(raw))
 
 
-def decrypt(enc):
+def decrypt(enc, KEY=KEY):
+    """AES decryption. Uses default shared key if none is provided."""
     def unpad(s): return s[:-ord(s[-1:])]
 
     enc = base64.b64decode(enc)

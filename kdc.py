@@ -6,6 +6,7 @@ import socketserver
 
 from models import FileSystem, Client, Route
 from crypto import encrypt, decrypt
+from config import HOST, KDC_PORT
 
 # Stores id -> filesystem_node
 filesystems = {}
@@ -50,7 +51,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", int(sys.argv[1])
-
-    with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
+    with socketserver.TCPServer((HOST, KDC_PORT), MyTCPHandler) as server:
+        print("Running KDC server on PORT:", KDC_PORT, "...")
         server.serve_forever()

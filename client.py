@@ -4,21 +4,24 @@ import socket
 import json
 import sys
 from models import Route
-from keys import PASSWORD
+from config import PASSWORD, HOST, KDC_PORT, CLIENT_USERNAME
 from crypto import encrypt, decrypt
-
-HOST, PORT = "localhost", int(sys.argv[1])
 
 # Global Information of CLI node
 id = None
 key = None
 
 # Input username password
-username = "admin"
+username = CLIENT_USERNAME
 password = PASSWORD
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    sock.connect((HOST, PORT))
+    print("Connecting with KDC on PORT:", KDC_PORT, "...")
+    try:
+        sock.connect((HOST, KDC_PORT))
+    except:
+        print("ERR: Unable to connect with KDC.")
+        exit()
 
     data = Route("login", {'username': username, 'password': password})
     data = encrypt(data.serialize())
