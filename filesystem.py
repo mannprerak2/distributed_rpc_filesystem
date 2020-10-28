@@ -1,18 +1,33 @@
 # File System Node
 
+import os
 import socket
 import json
 import sys
+import argparse
 from crypto import encrypt, decrypt
 from models import Route
 from config import HOST, KDC_PORT
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--port', help="Port number for filesystem socketserver")
+parser.add_argument('--path', help="Path of the directory to be mounted")
+parser.add_argument('--kdc', help="Port number for KDC")
+
+args = parser.parse_args()
 
 # Global Information of FS node
 id = None
 key = None
 
-if (len(sys.argv) > 1):
-    KDC_PORT = int(sys.argv[1])
+# PATH - path of directory to be mounted
+PATH = args.path
+
+# PORT - port number for filesystem server
+PORT = int(args.port)
+
+if (args.kdc != None):
+    KDC_PORT = int(args.kdc)
 
 # Initialisation - get unique ID and key from KDC
 
