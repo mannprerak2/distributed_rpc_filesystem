@@ -18,8 +18,19 @@ password = PASSWORD
 # Files last fetched
 files = {}
 
+# Session keys (port number -> session key mapping)
+session_keys = {}
+
 if (len(sys.argv) > 1):
     KDC_PORT = int(sys.argv[1])
+
+
+def get_fs_port(filename):
+    # Get port number of FS node which contains filename
+    for each in files:
+        if each['name'] == filename:
+            return int(each['port'])
+    return None
 
 
 def request(port, path, body):
@@ -77,7 +88,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
         while(True):
             prompt = ">> "
-            command = input(prompt)
+            command = input(prompt).strip()
 
             if command == "exit":
                 exit()
@@ -88,3 +99,18 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 for each in files:
                     print(each['name'], end=' ')
                 print()
+            else:
+                words = command.split(' ')
+                if words[0] == "cat":
+                    filename = words[1]
+                    port = get_fs_port(filename)
+
+                    if (port == None):
+                        print("No such file")
+                    else:
+                        print("Found port:", port)
+
+                        if port in session_keys:
+                            print("Directly communicate with fs node")
+                        else:
+                            print("Get session key for this fs node")
