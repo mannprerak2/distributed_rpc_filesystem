@@ -172,17 +172,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     )
 
                     print(response['result'])
-
-            # elif words[0] == "cat":
-            #     if len(words) < 2:
-            #         print("Usage:", COMMANDS["cat"])
-            #         continue
-
-            # elif words[0] == "pwd":
-            #     # To-Do: implement pwd
-            #     print("NOT IMPLEMENTED")
-            # elif words[0] == "cp":
-            #     # To-Do: implement and do CP
-            #     print("NOT DOING CP")
-            # else:
-            #     print(command, "- No such command.")
