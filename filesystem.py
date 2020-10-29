@@ -1,10 +1,12 @@
 # File System Node
 
 import os
-import socket
-import json
 import sys
+import json
+import socket
+import random
 import argparse
+import socketserver
 from crypto import encrypt, decrypt
 from models import Route
 from config import HOST, KDC_PORT
@@ -62,3 +64,49 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     id = received['id']
     key = bytes.fromhex(received['key'])
     print("Node successfully registered with id:", id)
+
+last_nonce = 0
+
+
+class MyTCPHandler(socketserver.BaseRequestHandler):
+    def handle(self):
+        global last_nonce
+
+        self.data = self.request.recv(1024).strip()
+        route = decrypt(self.data)
+        route = Route.fromrequest(route)
+
+        print(route.get_sel())
+
+        if (route.get_sel() == "init"):
+            # Client has sent the session key encrypted using this FS's key
+            enc_key = route.body['key']
+
+            try:
+                session_key = decrypt(bytes.fromhex(enc_key), key)
+                last_nonce = random.randrange(1000)
+
+                response = json.dumps({'nonce': str(last_nonce)})
+            except:
+                response = json.dumps({'error': "1"})
+            finally:
+                response = encrypt(response)
+                self.request.sendall(response)
+
+        elif (route.get_sel() == "confirm"):
+            nonce = int(route.body['nonce'])
+
+            if (nonce == last_nonce + 1):
+                print("Execute:", route.body['command'])
+                # Execute the command received
+            else:
+                print("Not possible to execute command")
+
+            response = json.dumps({'result': 'Output of RPC or error'})
+            response = encrypt(response)
+            self.request.sendall(response)
+
+
+with socketserver.TCPServer(("localhost", PORT), MyTCPHandler) as server:
+    print("Running file server on PORT:", PORT, "...")
+    server.serve_forever()

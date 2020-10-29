@@ -57,16 +57,20 @@ def request(port, path, body):
 
 
 def get_session_key(port, id):
+    print("Getting session key for FS", id)
     # 1. Send request to KDC with FS id
     # 2. Get session key and its encrypted version (using FS's key)
+    # 3. Save to global mapping
 
     response = request(KDC_PORT, "comm", {'id': id})
-    session_key = response['key']
 
-    # Same key but encrypted using FS node's key
+    session_key = response['key']
     encrypted_session_key = response['encrypted']
 
-    print(session_key, encrypted_session_key)
+    session_keys[port] = {
+        'key': bytes.fromhex(session_key),
+        'encrypted': bytes.fromhex(encrypted_session_key)
+    }
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -109,6 +113,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
             if words[0] == "exit":
                 exit()
+
             elif words[0] == "help":
                 if len(words) != 2:
                     print("Available Commands - ")
@@ -118,6 +123,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     print(words[1], "- No such command.")
                 else:
                     print("Usage:", COMMANDS[words[1]])
+
             elif words[0] == "ls":
                 response = request(KDC_PORT, "ls", None)
                 files = response['files']
@@ -125,6 +131,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 for each in files:
                     print(each['name'], end=' ')
                 print()
+
             elif words[0] == "cat":
                 if len(words) < 2:
                     print("Usage:", COMMANDS["cat"])
@@ -136,14 +143,29 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 if (port == None):
                     print("No such file")
                 else:
-                    print("Found port:", port, id)
-
-                    if port in session_keys:
-                        print("Directly communicate with fs node")
-                    else:
-                        print("Get session key for this fs node")
+                    # After this, session_keys contains the key and encrypted key for required FS
+                    if port not in session_keys:
                         get_session_key(port, id)
-                    # To-Do: implement cat
+
+                    # The session key and encrypted session key for FS at port
+                    session_key = session_keys[port]['key']
+                    encrypted_session_key = session_keys[port]['encrypted']
+
+                    # Prove to filesystem that session key is correct
+                    response = request(
+                        port, "init", {'key': encrypted_session_key.hex()}
+                    )
+
+                    nonce = int(response['nonce'])
+
+                    # Send incremented nonce and the RPC
+                    response = request(
+                        port, "confirm",
+                        {'nonce': nonce + 1, 'command': 'hello world'}
+                    )
+
+                    print(response)
+
             elif words[0] == "pwd":
                 # To-Do: implement pwd
                 print("NOT IMPLEMENTED")
