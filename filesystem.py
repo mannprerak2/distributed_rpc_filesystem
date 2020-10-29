@@ -103,16 +103,30 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 words = command.split(' ')
 
                 if (words[0] == "cat"):
-                    file_path = words[1]
-                    text = open(os.path.join(PATH, file_path), mode='r').read()
+                    file_path = os.path.join(PATH, words[1])
+                    text = open(file_path, 'r').read()
                     response = json.dumps({'result': text})
 
                 elif (words[0] == "cp"):
-                    print("Create a new file")
-                    response = json.dumps({'result': 'successful'})
+                    og_file = os.path.join(PATH, words[1])
+                    new_file = os.path.join(PATH, words[2])
 
+                    if (os.path.exists(os.path.join(PATH, new_file)) == False):
+                        try:
+                            text = open(og_file, mode='r').read()
+                            copy = open(new_file, mode='w+')
+                            copy.write(text)
+                            response = json.dumps(
+                                {'result': 'Created copy successfuly'})
+                            # Update KDC about the new file
+                        except:
+                            response = json.dumps(
+                                {'result': 'Copy creation failed'})
+                    else:
+                        response = json.dumps(
+                            {'result': 'File already exists'})
             else:
-                response = json.dumps({'error': '1'})
+                response = json.dumps({'result': 'Authentication failed'})
 
             response = encrypt(response)
             self.request.sendall(response)
