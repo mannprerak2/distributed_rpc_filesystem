@@ -37,9 +37,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         route = decrypt(self.data)
         route = Route.fromrequest(route)
 
-        print(route.get_sel())
+        # print(route.get_sel())
 
         if (route.get_sel() == "init"):
+            print("A file system node is initialising the connection")
+
             # A file system node is initialising the connection
             fs = FileSystem(len(filesystems) + 1,
                             port=route.body['port'], files=route.body['files'])
@@ -54,6 +56,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(response)
 
         elif (route.get_sel() == "login"):
+            print("A client node is trying to login")
             if (route.body['username'] == "admin" and route.body['password'] == "password"):
                 # Successful login
                 cl = Client(len(clients) + 1)
@@ -69,6 +72,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(bytes('\0', 'utf-8'))
 
         elif (route.get_sel() == "ls"):
+            print("A client node is requesting all files")
             response = generate_listing()
             response = encrypt(json.dumps(response))
 
@@ -78,6 +82,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             # Initial communication for Needham Schroeder
             fs_id = route.body['id']
             fs_key = filesystems[fs_id].get_key()
+
+            print("A client node is initialising communication with a FS node", fs_id)
 
             # Generate session key
             session_key = os.urandom(16).hex()

@@ -76,9 +76,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         route = decrypt(self.data)
         route = Route.fromrequest(route)
 
-        print(route.get_sel())
-
         if (route.get_sel() == "init"):
+            print("A client node is trying to authenticate itself")
             # Client has sent the session key encrypted using this FS's key
             enc_key = route.body['key']
 
@@ -94,15 +93,27 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(response)
 
         elif (route.get_sel() == "confirm"):
+            print("Received nonce and RPC")
             nonce = int(route.body['nonce'])
 
             if (nonce == last_nonce + 1):
                 print("Execute:", route.body['command'])
-                # Execute the command received
-            else:
-                print("Not possible to execute command")
 
-            response = json.dumps({'result': 'Output of RPC or error'})
+                command = route.body['command']
+                words = command.split(' ')
+
+                if (words[0] == "cat"):
+                    file_path = words[1]
+                    text = open(os.path.join(PATH, file_path), mode='r').read()
+                    response = json.dumps({'result': text})
+
+                elif (words[0] == "cp"):
+                    print("Create a new file")
+                    response = json.dumps({'result': 'successful'})
+
+            else:
+                response = json.dumps({'error': '1'})
+
             response = encrypt(response)
             self.request.sendall(response)
 

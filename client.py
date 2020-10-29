@@ -1,8 +1,9 @@
 # CLI
 
-import socket
-import json
+import os
 import sys
+import json
+import socket
 from models import Route
 from config import PASSWORD, HOST, KDC_PORT, CLIENT_USERNAME, COMMANDS
 from crypto import encrypt, decrypt
@@ -57,7 +58,7 @@ def request(port, path, body):
 
 
 def get_session_key(port, id):
-    print("Getting session key for FS", id)
+    # print("Getting session key for FS", id)
     # 1. Send request to KDC with FS id
     # 2. Get session key and its encrypted version (using FS's key)
     # 3. Save to global mapping
@@ -132,11 +133,17 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     print(each['name'], end=' ')
                 print()
 
-            elif words[0] == "cat":
-                if len(words) < 2:
-                    print("Usage:", COMMANDS["cat"])
-                    continue
+            elif words[0] == "pwd":
+                print("/")
 
+            elif words[0] == "clear":
+                os.system('clear')
+
+            elif words[0] not in COMMANDS:
+                print(command, "- No such command.")
+
+            # Other commands that use files
+            else:
                 filename = words[1]
                 port, id = get_fs_port(filename)
 
@@ -161,16 +168,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     # Send incremented nonce and the RPC
                     response = request(
                         port, "confirm",
-                        {'nonce': nonce + 1, 'command': 'hello world'}
+                        {'nonce': nonce + 1, 'command': command}
                     )
 
-                    print(response)
+                    print(response['result'])
 
-            elif words[0] == "pwd":
-                # To-Do: implement pwd
-                print("NOT IMPLEMENTED")
-            elif words[0] == "cp":
-                # To-Do: implement and do CP
-                print("NOT DOING CP")
-            else:
-                print(command, "- No such command.")
+            # elif words[0] == "cat":
+            #     if len(words) < 2:
+            #         print("Usage:", COMMANDS["cat"])
+            #         continue
+
+            # elif words[0] == "pwd":
+            #     # To-Do: implement pwd
+            #     print("NOT IMPLEMENTED")
+            # elif words[0] == "cp":
+            #     # To-Do: implement and do CP
+            #     print("NOT DOING CP")
+            # else:
+            #     print(command, "- No such command.")
