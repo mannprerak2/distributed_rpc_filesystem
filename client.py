@@ -4,7 +4,7 @@ import socket
 import json
 import sys
 from models import Route
-from config import PASSWORD, HOST, KDC_PORT, CLIENT_USERNAME
+from config import PASSWORD, HOST, KDC_PORT, CLIENT_USERNAME, COMMANDS
 from crypto import encrypt, decrypt
 
 # Global Information of CLI node
@@ -103,28 +103,52 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             prompt = ">> "
             command = input(prompt).strip()
 
-            if command == "exit":
+            words = command.split(' ')
+            if len(words) < 1:
+                continue
+
+            if words[0] == "exit":
                 exit()
-            elif command == "ls":
+            elif words[0] == "help":
+                if len(words) != 2:
+                    print("Available Commands - ")
+                    for key in COMMANDS.keys():
+                        print(COMMANDS[key])
+                elif words[1] not in COMMANDS:
+                    print(words[1], "- No such command.")
+                else:
+                    print("Usage:", COMMANDS[words[1]])
+            elif words[0] == "ls":
                 response = request(KDC_PORT, "ls", None)
                 files = response['files']
 
                 for each in files:
                     print(each['name'], end=' ')
                 print()
-            else:
-                words = command.split(' ')
-                if words[0] == "cat":
-                    filename = words[1]
-                    port, id = get_fs_port(filename)
+            elif words[0] == "cat":
+                if len(words) < 2:
+                    print("Usage:", COMMANDS["cat"])
+                    continue
 
-                    if (port == None):
-                        print("No such file")
+                filename = words[1]
+                port, id = get_fs_port(filename)
+
+                if (port == None):
+                    print("No such file")
+                else:
+                    print("Found port:", port, id)
+
+                    if port in session_keys:
+                        print("Directly communicate with fs node")
                     else:
-                        print("Found port:", port, id)
-
-                        if port in session_keys:
-                            print("Directly communicate with fs node")
-                        else:
-                            print("Get session key for this fs node")
-                            get_session_key(port, id)
+                        print("Get session key for this fs node")
+                        get_session_key(port, id)
+                    # To-Do: implement cat
+            elif words[0] == "pwd":
+                # To-Do: implement pwd
+                print("NOT IMPLEMENTED")
+            elif words[0] == "cp":
+                # To-Do: implement and do CP
+                print("NOT DOING CP")
+            else:
+                print(command, "- No such command.")

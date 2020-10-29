@@ -10,8 +10,10 @@ from models import Route
 from config import HOST, KDC_PORT
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--port', help="Port number for filesystem socketserver")
-parser.add_argument('--path', help="Path of the directory to be mounted")
+parser.add_argument(
+    '--port', help="Port number for filesystem socketserver", required=True)
+parser.add_argument(
+    '--path', help="Path of the directory to be mounted", required=True)
 parser.add_argument('--kdc', help="Port number for KDC")
 
 args = parser.parse_args()
