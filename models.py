@@ -21,6 +21,9 @@ class FileSystem:
     def get_files(self):
         return self.files
 
+    def set_files(self, files):
+        self.files = files
+
     def serialize(self):
         return json.dumps({"id": self.id, "key": self.key.hex()})
 

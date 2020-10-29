@@ -33,7 +33,33 @@ PORT = int(args.port)
 if (args.kdc != None):
     KDC_PORT = int(args.kdc)
 
+
+def request(port, path, body):
+    # To-Do: Use single common definition of this function
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.connect((HOST, port))
+    except:
+        print("ERR: Unable to connect to", port)
+        exit()
+
+    data = Route(path, body)
+    data = encrypt(data.serialize())
+    status = sock.sendall(data)
+
+    if status == None:
+        response = sock.recv(1024)
+        response = decrypt(response)
+        response = json.loads(response)
+
+        return response
+    else:
+        print("Could not send the request")
+        exit()
+
 # Initialisation - get unique ID and key from KDC
+
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     print("Connecting with KDC on PORT:", KDC_PORT, "...")
@@ -118,7 +144,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             copy.write(text)
                             response = json.dumps(
                                 {'result': 'Created copy successfuly'})
+
                             # Update KDC about the new file
+                            request(KDC_PORT, "update", {
+                                    'id': id, 'files': os.listdir(PATH)
+                                    })
+
                         except:
                             response = json.dumps(
                                 {'result': 'Copy creation failed'})

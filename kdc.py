@@ -55,6 +55,20 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             self.request.sendall(response)
 
+        elif (route.get_sel() == "update"):
+            print("A file system node is updating its files")
+
+            id = route.body['id']
+            update_fs = filesystems[id]
+
+            update_fs.set_files(route.body['files'])
+
+            response = encrypt(json.dumps(
+                {'result': 'successful'}
+            ))
+
+            self.request.sendall(response)
+
         elif (route.get_sel() == "login"):
             print("A client node is trying to login")
             if (route.body['username'] == "admin" and route.body['password'] == "password"):
