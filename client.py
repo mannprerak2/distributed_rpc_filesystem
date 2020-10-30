@@ -144,6 +144,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
             # Other commands that use files
             else:
+                if (words[0] == 'cat' and len(words) != 2) or (words[0] == 'cp' and len(words) != 3):
+                    print("Usage:", COMMANDS[words[1]])
+                    continue
+
                 filename = words[1]
                 port, id = get_fs_port(filename)
 
