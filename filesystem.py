@@ -93,6 +93,41 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
 last_nonce = 0
 
+# ====================RPC===============================
+
+def cat(filename):
+    file_path = os.path.join(PATH, filename)
+    text = open(file_path, 'r').read()
+    return json.dumps({'result': text})
+
+
+def cp(oldFile, newFile):
+    og_file = os.path.join(PATH, oldFile)
+    new_file = os.path.join(PATH, newFile)
+    response={}
+    if (os.path.exists(os.path.join(PATH, new_file)) == False):
+        try:
+            text = open(og_file, mode='r').read()
+            copy = open(new_file, mode='w+')
+            copy.write(text)
+            response = json.dumps(
+                {'result': 'Created copy successfuly'})
+
+            # Update KDC about the new file
+            request(KDC_PORT, "update", {
+                    'id': id, 'files': os.listdir(PATH)
+                    })
+
+        except:
+            response = json.dumps(
+                {'result': 'Copy creation failed'})
+    else:
+        response = json.dumps(
+            {'result': 'File already exists'})
+    return response
+# =======================================================
+
+
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
@@ -129,33 +164,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 words = command.split(' ')
 
                 if (words[0] == "cat"):
-                    file_path = os.path.join(PATH, words[1])
-                    text = open(file_path, 'r').read()
-                    response = json.dumps({'result': text})
+                    response = cat(words[1])
 
                 elif (words[0] == "cp"):
-                    og_file = os.path.join(PATH, words[1])
-                    new_file = os.path.join(PATH, words[2])
-
-                    if (os.path.exists(os.path.join(PATH, new_file)) == False):
-                        try:
-                            text = open(og_file, mode='r').read()
-                            copy = open(new_file, mode='w+')
-                            copy.write(text)
-                            response = json.dumps(
-                                {'result': 'Created copy successfuly'})
-
-                            # Update KDC about the new file
-                            request(KDC_PORT, "update", {
-                                    'id': id, 'files': os.listdir(PATH)
-                                    })
-
-                        except:
-                            response = json.dumps(
-                                {'result': 'Copy creation failed'})
-                    else:
-                        response = json.dumps(
-                            {'result': 'File already exists'})
+                    response = cp(words[1], words[2])
             else:
                 response = json.dumps({'result': 'Authentication failed'})
 
